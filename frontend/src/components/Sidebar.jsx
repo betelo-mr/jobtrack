@@ -1,5 +1,6 @@
 import { signOut } from 'firebase/auth'
 import { auth } from '../firebase'
+import { VERSION, BUILD_DATE } from '../version'
 
 const NAV = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
