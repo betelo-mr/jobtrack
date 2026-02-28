@@ -8,7 +8,6 @@ import Tracker from './pages/Tracker'
 import AIAssistant from './pages/AIAssistant'
 import Jobs from './pages/Jobs'
 import Analytics from './pages/Analytics'
-import ComingSoon from './pages/ComingSoon'
 import Sidebar from './components/Sidebar'
 import AddAppModal from './components/AddAppModal'
 import Toast, { showToast } from './components/Toast'
@@ -82,8 +81,8 @@ export default function App() {
               {page === 'dashboard' && <Dashboard applications={applications} onAdd={() => setShowModal(true)} setPage={setPage} />}
               {page === 'tracker'   && <Tracker applications={applications} onAdd={() => setShowModal(true)} onDelete={deleteApplication} />}
               {page === 'ai'        && <AIAssistant />}
-              {page === 'jobs'      && <ComingSoon feature='jobs' />}
-              {page === 'analytics' && <ComingSoon feature='analytics' />}
+              {page === 'jobs'      && <Jobs onApply={handleQuickApply} />}
+              {page === 'analytics' && <Analytics applications={applications} />}
             </>
           )}
         </div>

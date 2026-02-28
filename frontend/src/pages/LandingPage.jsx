@@ -272,7 +272,7 @@ export default function LandingPage({ onLogin }) {
                 Najpopularniejszy
               </div>
               <p className="text-xs font-display font-bold text-green-600 uppercase tracking-widest mb-3">Pro</p>
-              <p className="font-display text-5xl font-black text-gray-900 mb-1">39 zł</p>
+              <p className="font-display text-5xl font-black text-gray-900 mb-1">49 zł</p>
               <p className="text-sm text-gray-400 mb-8">miesięcznie · anuluj kiedy chcesz</p>
               <div className="space-y-3 mb-8">
                 {[

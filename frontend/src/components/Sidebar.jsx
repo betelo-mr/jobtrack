@@ -5,8 +5,8 @@ const NAV = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
   { id: 'tracker',   icon: '📋', label: 'Moje aplikacje' },
   { id: 'ai',        icon: '🤖', label: 'AI Asystent' },
-  { id: 'jobs',      icon: '🔍', label: 'Oferty pracy' },
-  { id: 'analytics', icon: '📈', label: 'Analityka' },
+  { id: 'jobs',      icon: '🔍', label: 'Oferty pracy', soon: true },
+  { id: 'analytics', icon: '📈', label: 'Analityka', soon: true },
 ]
 
 export default function Sidebar({ user, page, setPage, appCount }) {
@@ -31,6 +31,11 @@ export default function Sidebar({ user, page, setPage, appCount }) {
             {item.id === 'tracker' && appCount > 0 && (
               <span className="ml-auto bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full font-semibold">
                 {appCount}
+              </span>
+            )}
+            {item.soon && (
+              <span className="ml-auto bg-yellow-50 text-yellow-500 text-xs px-2 py-0.5 rounded-full font-semibold">
+                Wkrótce
               </span>
             )}
           </button>
