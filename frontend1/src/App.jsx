@@ -12,6 +12,7 @@ import ComingSoon from './pages/ComingSoon'
 import Sidebar from './components/Sidebar'
 import AddAppModal from './components/AddAppModal'
 import Toast, { showToast } from './components/Toast'
+import UpgradeModal from './components/UpgradeModal'
 
 const PAGE_TITLES = {
   dashboard: { title: 'Dashboard', sub: user => `Witaj z powrotem, ${user?.displayName?.split(' ')[0] || 'użytkowniku'}! 👋` },
@@ -27,6 +28,7 @@ export default function App() {
   const [page, setPage] = useState('dashboard')
   const [showModal, setShowModal] = useState(false)
   const [showAuth, setShowAuth] = useState(false)
+  const [showUpgrade, setShowUpgrade] = useState(false)
 
   // Loading state
   if (user === undefined) {
@@ -41,6 +43,13 @@ export default function App() {
   if (!user) {
     if (showAuth) return <AuthPage />
     return <LandingPage onLogin={() => setShowAuth(true)} />
+  }
+
+  // Handle Stripe return
+  const urlParams = new URLSearchParams(window.location.search)
+  if (urlParams.get('payment') === 'success') {
+    showToast('🎉 Witamy w Pro! Dziękujemy za subskrypcję.')
+    window.history.replaceState({}, '', '/')
   }
 
   const pageInfo = PAGE_TITLES[page]
@@ -66,6 +75,7 @@ export default function App() {
             <h2 className="font-display font-bold text-xl text-gray-800">{pageInfo.title}</h2>
             <p className="text-sm text-gray-400 font-light mt-0.5">{pageInfo.sub(user)}</p>
           </div>
+          <button onClick={() => setShowUpgrade(true)} className="btn-ghost mr-2 text-sm">⚡ Pro</button>
           <button onClick={() => setShowModal(true)} className="btn-primary">
             <span>+</span> Dodaj aplikację
           </button>
@@ -91,6 +101,7 @@ export default function App() {
 
       {showModal && <AddAppModal onClose={() => setShowModal(false)} onSave={handleAddApplication} />}
       <Toast />
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
     </div>
   )
 }

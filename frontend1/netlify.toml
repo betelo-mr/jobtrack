@@ -12,6 +12,12 @@
   force = true
 
 [[redirects]]
+  from = "/stripe/*"
+  to = "https://jobtrack-production-a4e0.up.railway.app/stripe/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
