@@ -14,7 +14,7 @@ router.post('/create-checkout', async (req, res) => {
     if (!userId || !userEmail) return res.status(400).json({ error: 'Brak danych użytkownika.' })
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card', 'p24'],
+      payment_method_types: ['card'],
       mode: 'subscription',
       line_items: [{ price: PRICE_ID, quantity: 1 }],
       customer_email: userEmail,
