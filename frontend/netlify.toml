@@ -1,6 +1,13 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
+
 [[redirects]]
   from = "/api/*"
-  to = "https://jobtrack-production-a4e0.up.railway.app/:splat"
+  to = "https://jobtrack-production-a4e0.up.railway.app/api/:splat"
   status = 200
   force = true
 
