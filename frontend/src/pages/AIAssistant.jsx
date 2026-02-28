@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react'
+import { getAffiliateUrl, trackCourseClick } from '../utils/affiliateLinks'
 
 // ── Reusable PDF/Text upload zone ──
-function CVUpload({ inputMode, setInputMode, cvText, setCvText, cvFile, setCvFile, fileInputRef, onDrop, onChange }) {
+function CVUpload({ inputMode, setInputMode, cvText, setCvText, cvFile, setCvFile, fileInputRef, onDrop, onChange, height = 'h-40' }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
@@ -16,11 +17,11 @@ function CVUpload({ inputMode, setInputMode, cvText, setCvText, cvFile, setCvFil
         </div>
       </div>
       {inputMode === 'text' ? (
-        <textarea className="input resize-none h-40" placeholder="Wklej tutaj swoje CV lub kluczowe umiejętności..."
+        <textarea className={`input resize-none ${height}`} placeholder="Wklej tutaj swoje CV..."
           value={cvText} onChange={e => setCvText(e.target.value)} />
       ) : (
         <div
-          className={`h-40 border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all
+          className={`${height} border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all
             ${cvFile ? 'border-green-400 bg-green-50' : 'border-gray-200 bg-gray-50 hover:border-green-300 hover:bg-green-50/50'}`}
           onClick={() => fileInputRef.current?.click()}
           onDrop={onDrop} onDragOver={e => e.preventDefault()}>
@@ -69,11 +70,20 @@ export default function AIAssistant() {
   const [skillsLoading, setSkillsLoading] = useState(false)
   const skillsFileRef = useRef(null)
 
+  // CV Tailor
+  const [tailorJobDesc, setTailorJobDesc] = useState('')
+  const [tailorCvText, setTailorCvText] = useState('')
+  const [tailorCvFile, setTailorCvFile] = useState(null)
+  const [tailorCvInputMode, setTailorCvInputMode] = useState('text')
+  const [tailorResult, setTailorResult] = useState(null)
+  const [tailorLoading, setTailorLoading] = useState(false)
+  const tailorFileRef = useRef(null)
+
   const [error, setError] = useState('')
 
-  function makeFileHandler(setFile, setError) {
+  function makeFileHandler(setFile) {
     return function(e) {
-      const file = e.target.files?.[0] || e.dataTransfer?.files?.[0]
+      const file = e.target.files?.[0]
       if (!file) return
       if (file.type !== 'application/pdf') { setError('Tylko pliki PDF są obsługiwane.'); return }
       if (file.size > 5 * 1024 * 1024) { setError('Plik PDF nie może przekraczać 5MB.'); return }
@@ -98,8 +108,7 @@ export default function AIAssistant() {
     try {
       let body, headers = {}
       if (cvInputMode === 'pdf') {
-        const fd = new FormData(); fd.append('jobDesc', jobDesc); fd.append('cvPdf', cvFile)
-        body = fd
+        const fd = new FormData(); fd.append('jobDesc', jobDesc); fd.append('cvPdf', cvFile); body = fd
       } else {
         headers['Content-Type'] = 'application/json'
         body = JSON.stringify({ jobDesc, cvText })
@@ -120,8 +129,7 @@ export default function AIAssistant() {
     try {
       let body, headers = {}
       if (skillsCvInputMode === 'pdf') {
-        const fd = new FormData(); fd.append('goal', goal); fd.append('cvPdf', skillsCvFile)
-        body = fd
+        const fd = new FormData(); fd.append('goal', goal); fd.append('cvPdf', skillsCvFile); body = fd
       } else {
         headers['Content-Type'] = 'application/json'
         body = JSON.stringify({ goal, cvText: skillsCvText })
@@ -134,10 +142,37 @@ export default function AIAssistant() {
     setSkillsLoading(false)
   }
 
+  async function tailorCV() {
+    if (!tailorJobDesc.trim()) { setError('Wklej treść ogłoszenia.'); return }
+    if (tailorCvInputMode === 'text' && !tailorCvText.trim()) { setError('Wklej treść CV.'); return }
+    if (tailorCvInputMode === 'pdf' && !tailorCvFile) { setError('Wgraj plik PDF z CV.'); return }
+    setTailorLoading(true); setError(''); setTailorResult(null)
+    try {
+      let body, headers = {}
+      if (tailorCvInputMode === 'pdf') {
+        const fd = new FormData(); fd.append('jobDesc', tailorJobDesc); fd.append('cvPdf', tailorCvFile); body = fd
+      } else {
+        headers['Content-Type'] = 'application/json'
+        body = JSON.stringify({ jobDesc: tailorJobDesc, cvText: tailorCvText })
+      }
+      const res = await fetch('/api/tailor-cv', { method: 'POST', headers, body })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Błąd serwera')
+      setTailorResult(data)
+    } catch(e) { setError('Błąd: ' + e.message) }
+    setTailorLoading(false)
+  }
+
+  const TABS = [
+    { id:'cv',     icon:'📄', label:'Analiza CV pod ofertę' },
+    { id:'tailor', icon:'✂️',  label:'Dostosuj CV' },
+    { id:'skills', icon:'🗺️', label:'Mapa umiejętności' },
+  ]
+
   return (
     <div className="animate-fade-in max-w-4xl">
       <div className="flex border-b border-gray-100 mb-6">
-        {[{id:'cv',icon:'📄',label:'Analiza CV pod ofertę'},{id:'skills',icon:'🗺️',label:'Mapa umiejętności'}].map(t => (
+        {TABS.map(t => (
           <button key={t.id} onClick={() => { setTab(t.id); setError('') }}
             className={`flex items-center gap-2 px-5 py-3 text-sm font-display font-semibold border-b-2 -mb-px transition-all ${tab===t.id?'text-green-600 border-green-600':'text-gray-300 border-transparent hover:text-gray-500'}`}>
             <span>{t.icon}</span>{t.label}
@@ -147,7 +182,7 @@ export default function AIAssistant() {
 
       {error && <div className="bg-red-50 border border-red-100 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">{error}</div>}
 
-      {/* ── CV TAB ── */}
+      {/* ── CV ANALYSIS TAB ── */}
       {tab === 'cv' && (
         <div>
           <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-100 rounded-xl p-4 mb-5 text-sm text-gray-500">
@@ -160,14 +195,9 @@ export default function AIAssistant() {
                 <textarea className="input resize-none h-40" placeholder="Wklej tutaj treść ogłoszenia o pracę..."
                   value={jobDesc} onChange={e => setJobDesc(e.target.value)} />
               </div>
-              <CVUpload
-                inputMode={cvInputMode} setInputMode={setCvInputMode}
-                cvText={cvText} setCvText={setCvText}
-                cvFile={cvFile} setCvFile={setCvFile}
-                fileInputRef={cvFileRef}
-                onDrop={makeDrop(setCvFile)}
-                onChange={makeFileHandler(setCvFile, setError)}
-              />
+              <CVUpload inputMode={cvInputMode} setInputMode={setCvInputMode}
+                cvText={cvText} setCvText={setCvText} cvFile={cvFile} setCvFile={setCvFile}
+                fileInputRef={cvFileRef} onDrop={makeDrop(setCvFile)} onChange={makeFileHandler(setCvFile)} />
             </div>
             <div className="flex justify-end">
               <button onClick={analyzeCV} disabled={cvLoading} className="btn-primary">
@@ -179,27 +209,49 @@ export default function AIAssistant() {
         </div>
       )}
 
+      {/* ── TAILOR CV TAB ── */}
+      {tab === 'tailor' && (
+        <div>
+          <div className="bg-gradient-to-r from-purple-50 to-green-50 border border-purple-100 rounded-xl p-4 mb-5 text-sm text-gray-500">
+            ✂️ Wklej CV i ogłoszenie – Claude przepisze CV dopasowując język, słowa kluczowe i kolejność sekcji do tej konkretnej oferty. Żadnych wymyślonych informacji – tylko Twoje doświadczenie, lepiej opowiedziane.
+          </div>
+          <div className="card p-5 mb-5">
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-xs font-display text-gray-400 uppercase tracking-wide mb-2">Treść ogłoszenia</label>
+                <textarea className="input resize-none h-52" placeholder="Wklej tutaj treść ogłoszenia o pracę..."
+                  value={tailorJobDesc} onChange={e => setTailorJobDesc(e.target.value)} />
+              </div>
+              <CVUpload inputMode={tailorCvInputMode} setInputMode={setTailorCvInputMode}
+                cvText={tailorCvText} setCvText={setTailorCvText} cvFile={tailorCvFile} setCvFile={setTailorCvFile}
+                fileInputRef={tailorFileRef} onDrop={makeDrop(setTailorCvFile)} onChange={makeFileHandler(setTailorCvFile)}
+                height="h-52" />
+            </div>
+            <div className="flex justify-end">
+              <button onClick={tailorCV} disabled={tailorLoading} className="btn-primary">
+                {tailorLoading ? <><span className="animate-spin inline-block">⏳</span> Przepisuję CV...</> : '✂️ Dostosuj CV do oferty'}
+              </button>
+            </div>
+          </div>
+          {tailorResult && <TailorResult data={tailorResult} />}
+        </div>
+      )}
+
       {/* ── SKILLS TAB ── */}
       {tab === 'skills' && (
         <div>
           <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-100 rounded-xl p-4 mb-5 text-sm text-gray-500">
-            🗺️ Podaj cel zawodowy i wklej CV (lub wgraj PDF) – Claude wyciągnie Twoje umiejętności i stworzy spersonalizowany plan rozwoju.
+            🗺️ Podaj cel zawodowy i wklej CV – Claude wyciągnie Twoje umiejętności i stworzy spersonalizowany plan rozwoju.
           </div>
           <div className="card p-5 mb-5">
             <div className="mb-4">
               <label className="block text-xs font-display text-gray-400 uppercase tracking-wide mb-2">🎯 Cel zawodowy</label>
-              <input className="input" type="text"
-                placeholder="np. Senior Product Manager, Data Scientist, DevOps Engineer..."
+              <input className="input" type="text" placeholder="np. Senior Product Manager, Data Scientist, DevOps Engineer..."
                 value={goal} onChange={e => setGoal(e.target.value)} />
             </div>
-            <CVUpload
-              inputMode={skillsCvInputMode} setInputMode={setSkillsCvInputMode}
-              cvText={skillsCvText} setCvText={setSkillsCvText}
-              cvFile={skillsCvFile} setCvFile={setSkillsCvFile}
-              fileInputRef={skillsFileRef}
-              onDrop={makeDrop(setSkillsCvFile)}
-              onChange={makeFileHandler(setSkillsCvFile, setError)}
-            />
+            <CVUpload inputMode={skillsCvInputMode} setInputMode={setSkillsCvInputMode}
+              cvText={skillsCvText} setCvText={setSkillsCvText} cvFile={skillsCvFile} setCvFile={setSkillsCvFile}
+              fileInputRef={skillsFileRef} onDrop={makeDrop(setSkillsCvFile)} onChange={makeFileHandler(setSkillsCvFile)} />
             <div className="flex justify-end mt-4">
               <button onClick={analyzeSkills} disabled={skillsLoading} className="btn-primary">
                 {skillsLoading ? <><span className="animate-spin inline-block">⏳</span> Analizuję CV...</> : '🗺️ Generuj mapę umiejętności'}
@@ -213,6 +265,7 @@ export default function AIAssistant() {
   )
 }
 
+// ── CV ANALYSIS RESULT ──
 function CVResult({ data }) {
   const score = data.matchScore || 0
   return (
@@ -254,6 +307,102 @@ function CVResult({ data }) {
   )
 }
 
+// ── TAILOR CV RESULT ──
+function TailorResult({ data }) {
+  const [copied, setCopied] = useState(false)
+
+  function copyText() {
+    navigator.clipboard.writeText(data.tailoredCV)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  function downloadPDF() {
+    const win = window.open('', '_blank')
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>CV</title>
+        <style>
+          body { font-family: 'Arial', sans-serif; max-width: 800px; margin: 40px auto; padding: 0 40px; color: #1a1a1a; line-height: 1.6; font-size: 14px; }
+          h1 { font-size: 26px; font-weight: 800; margin-bottom: 4px; color: #111; }
+          h2 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #16a34a; border-bottom: 2px solid #dcfce7; padding-bottom: 4px; margin-top: 24px; margin-bottom: 10px; }
+          h3 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+          p, li { color: #374151; margin: 4px 0; }
+          ul { padding-left: 20px; }
+          .contact { color: #6b7280; font-size: 13px; margin-bottom: 20px; }
+          @media print { body { margin: 20px; } }
+        </style>
+      </head>
+      <body>
+        ${markdownToHTML(data.tailoredCV)}
+        <script>window.onload = () => { window.print(); }<\/script>
+      </body>
+      </html>
+    `)
+    win.document.close()
+  }
+
+  return (
+    <div className="card p-6 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-4 mb-5 border-b border-gray-50">
+        <div>
+          <p className="font-display font-bold text-lg text-gray-800">✂️ CV dostosowane do oferty</p>
+          <p className="text-sm text-gray-400 mt-0.5">{data.summary}</p>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={copyText} className="btn-ghost text-xs gap-1.5">
+            {copied ? '✓ Skopiowano!' : '📋 Kopiuj tekst'}
+          </button>
+          <button onClick={downloadPDF} className="btn-primary text-xs gap-1.5">
+            📄 Pobierz PDF
+          </button>
+        </div>
+      </div>
+
+      {/* Changes summary */}
+      {data.changes?.length > 0 && (
+        <div className="mb-5">
+          <p className="text-sm font-semibold text-gray-700 mb-2">🔄 Co zostało zmienione</p>
+          <div className="grid grid-cols-2 gap-2">
+            {data.changes.map((c, i) => (
+              <div key={i} className="flex items-start gap-2 bg-green-50 rounded-lg px-3 py-2">
+                <span className="text-green-500 mt-0.5 shrink-0">✓</span>
+                <span className="text-xs text-green-800">{c}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* CV preview */}
+      <div>
+        <p className="text-sm font-semibold text-gray-700 mb-3">📄 Podgląd CV</p>
+        <div className="bg-gray-50 rounded-xl p-5 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap font-mono text-xs border border-gray-100 max-h-96 overflow-y-auto">
+          {data.tailoredCV}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Simple markdown → HTML converter for PDF
+function markdownToHTML(md) {
+  return md
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<[hul])(.+)$/gm, '<p>$1</p>')
+}
+
+// ── SKILLS RESULT ──
 function SkillsResult({ data }) {
   return (
     <div className="card p-6 animate-fade-in">
@@ -314,16 +463,28 @@ function SkillsResult({ data }) {
             <p className="font-display font-bold text-gray-800 mb-3">📚 Polecane kursy</p>
             <div className="space-y-2">
               {data.courses.map((c,i) => (
-                <div key={i} className="card p-3 flex items-center gap-3 hover:border-green-200 transition-all hover:translate-x-1 cursor-pointer">
-                  <span className={`text-xs font-bold px-2 py-1 rounded min-w-16 text-center ${c.free?'bg-green-50 text-green-600':'bg-gray-50 text-gray-400'}`}>{c.platform}</span>
+                <a
+                  key={i}
+                  href={getAffiliateUrl(c.platform, c.title)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackCourseClick(c.platform, c.title)}
+                  className="card p-3 flex items-center gap-3 hover:border-green-200 transition-all hover:translate-x-1 hover:shadow-sm no-underline block">
+                  <span className={`text-xs font-bold px-2 py-1 rounded min-w-16 text-center shrink-0 ${c.free?'bg-green-50 text-green-600':'bg-gray-50 text-gray-400'}`}>
+                    {c.platform}
+                  </span>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-gray-700 truncate">{c.title}</p>
                     <p className="text-xs text-gray-300">{c.duration}</p>
                   </div>
-                  <p className={`text-xs font-bold shrink-0 ${c.free?'text-green-600':'text-gray-500'}`}>{c.price}</p>
-                </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <p className={`text-xs font-bold ${c.free?'text-green-600':'text-gray-500'}`}>{c.price}</p>
+                    <span className="text-gray-300 text-xs">↗</span>
+                  </div>
+                </a>
               ))}
             </div>
+            <p className="text-xs text-gray-300 mt-2 text-center">Kliknięcie może zawierać link afiliacyjny</p>
           </div>
         )}
       </div>
