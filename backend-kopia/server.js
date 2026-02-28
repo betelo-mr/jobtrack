@@ -3,20 +3,13 @@ import express from 'express'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 import claudeRoutes from './routes/claude.js'
-import stripeRoutes from './routes/stripe.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
 
 // ── CORS ──
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }))
-app.use((req, res, next) => {
-  if (req.path === '/stripe/webhook') {
-    express.raw({ type: 'application/json' })(req, res, next)
-  } else {
-    express.json()(req, res, next)
-  }
-})
+app.use(express.json())
 
 // ── RATE LIMITING ──
 // Global: max 60 zapytań na 15 minut per IP
@@ -43,7 +36,6 @@ app.use('/api', apiLimiter)
 // ── ROUTES ──
 app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }))
 app.use('/api', claudeRoutes)
-app.use('/stripe', stripeRoutes)
 
 app.listen(PORT, () => {
   console.log(`✅ JobTrack backend działa na http://localhost:${PORT}`)
