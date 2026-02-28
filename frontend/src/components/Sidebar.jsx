@@ -61,6 +61,9 @@ export default function Sidebar({ user, page, setPage, appCount }) {
           </button>
         </div>
       </div>
+      <div className="px-4 pb-3 pt-1">
+        <p className="text-xs text-gray-200 font-mono">v{VERSION} · {BUILD_DATE}</p>
+      </div>
     </aside>
   )
 }
