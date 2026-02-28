@@ -1,6 +1,7 @@
 import { signOut } from 'firebase/auth'
 import { auth } from '../firebase'
 import { VERSION, BUILD_DATE } from '../version'
+import { useTheme } from '../context/ThemeContext'
 
 const NAV = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
