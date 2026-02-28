@@ -1,4 +1,6 @@
 import { useState, useRef } from 'react'
+import { useAuth } from '../context/AuthContext'
+import { useUsage } from '../hooks/useUsage'
 import { getAffiliateUrl, trackCourseClick } from '../utils/affiliateLinks'
 
 // ── Reusable PDF/Text upload zone ──
@@ -80,6 +82,8 @@ export default function AIAssistant() {
   const tailorFileRef = useRef(null)
 
   const [error, setError] = useState('')
+  const user = useAuth()
+  const { usage, incrementUsage } = useUsage()
 
   function makeFileHandler(setFile) {
     return function(e) {
@@ -105,13 +109,15 @@ export default function AIAssistant() {
     if (cvInputMode === 'text' && !cvText.trim()) { setError('Wklej treść CV.'); return }
     if (cvInputMode === 'pdf' && !cvFile) { setError('Wgraj plik PDF z CV.'); return }
     setCvLoading(true); setError(''); setCvResult(null)
+    const usageCheck = await incrementUsage()
+    if (!usageCheck.allowed) { setError('LIMIT_REACHED'); setCvLoading(false); return }
     try {
       let body, headers = {}
       if (cvInputMode === 'pdf') {
-        const fd = new FormData(); fd.append('jobDesc', jobDesc); fd.append('cvPdf', cvFile); body = fd
+        const fd = new FormData(); fd.append('jobDesc', jobDesc); fd.append('cvPdf', cvFile); if(user?.uid) fd.append('userId', user.uid); body = fd
       } else {
         headers['Content-Type'] = 'application/json'
-        body = JSON.stringify({ jobDesc, cvText })
+        body = JSON.stringify({ jobDesc, cvText, userId: user?.uid })
       }
       const res = await fetch('/api/analyze-cv', { method: 'POST', headers, body })
       const data = await res.json()
@@ -126,13 +132,15 @@ export default function AIAssistant() {
     if (skillsCvInputMode === 'text' && !skillsCvText.trim()) { setError('Wklej CV lub wgraj PDF.'); return }
     if (skillsCvInputMode === 'pdf' && !skillsCvFile) { setError('Wgraj plik PDF z CV.'); return }
     setSkillsLoading(true); setError(''); setSkillsResult(null)
+    const usageCheck = await incrementUsage()
+    if (!usageCheck.allowed) { setError('LIMIT_REACHED'); setSkillsLoading(false); return }
     try {
       let body, headers = {}
       if (skillsCvInputMode === 'pdf') {
-        const fd = new FormData(); fd.append('goal', goal); fd.append('cvPdf', skillsCvFile); body = fd
+        const fd = new FormData(); fd.append('goal', goal); fd.append('cvPdf', skillsCvFile); if(user?.uid) fd.append('userId', user.uid); body = fd
       } else {
         headers['Content-Type'] = 'application/json'
-        body = JSON.stringify({ goal, cvText: skillsCvText })
+        body = JSON.stringify({ goal, cvText: skillsCvText, userId: user?.uid })
       }
       const res = await fetch('/api/analyze-skills', { method: 'POST', headers, body })
       const data = await res.json()
@@ -147,13 +155,15 @@ export default function AIAssistant() {
     if (tailorCvInputMode === 'text' && !tailorCvText.trim()) { setError('Wklej treść CV.'); return }
     if (tailorCvInputMode === 'pdf' && !tailorCvFile) { setError('Wgraj plik PDF z CV.'); return }
     setTailorLoading(true); setError(''); setTailorResult(null)
+    const usageCheck = await incrementUsage()
+    if (!usageCheck.allowed) { setError('LIMIT_REACHED'); setTailorLoading(false); return }
     try {
       let body, headers = {}
       if (tailorCvInputMode === 'pdf') {
-        const fd = new FormData(); fd.append('jobDesc', tailorJobDesc); fd.append('cvPdf', tailorCvFile); body = fd
+        const fd = new FormData(); fd.append('jobDesc', tailorJobDesc); fd.append('cvPdf', tailorCvFile); if(user?.uid) fd.append('userId', user.uid); body = fd
       } else {
         headers['Content-Type'] = 'application/json'
-        body = JSON.stringify({ jobDesc: tailorJobDesc, cvText: tailorCvText })
+        body = JSON.stringify({ jobDesc: tailorJobDesc, cvText: tailorCvText, userId: user?.uid })
       }
       const res = await fetch('/api/tailor-cv', { method: 'POST', headers, body })
       const data = await res.json()
@@ -180,6 +190,20 @@ export default function AIAssistant() {
         ))}
       </div>
 
+
+      {usage && !usage.isPro && (
+        <div className={`flex items-center justify-between px-4 py-2.5 rounded-xl mb-4 text-sm ${usage.remaining === 0 ? 'bg-red-50 border border-red-100' : 'bg-yellow-50 border border-yellow-100'}`}>
+          <span className={usage.remaining === 0 ? 'text-red-600' : 'text-yellow-700'}>
+            {usage.remaining === 0
+              ? '⚠️ Limit analiz wyczerpany na ten miesiąc'
+              : `⚡ Pozostało ${usage.remaining} z ${usage.limit} darmowych analiz w tym miesiącu`}
+          </span>
+          <button onClick={() => window.dispatchEvent(new CustomEvent('show-upgrade'))}
+            className="text-xs font-bold text-green-600 hover:text-green-700 transition-colors ml-3 shrink-0">
+            Przejdź na Pro →
+          </button>
+        </div>
+      )}
       {error && <div className="bg-red-50 border border-red-100 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">{error}</div>}
 
       {/* ── CV ANALYSIS TAB ── */}
