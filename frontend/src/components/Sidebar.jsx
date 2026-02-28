@@ -1,6 +1,5 @@
 import { signOut } from 'firebase/auth'
 import { auth } from '../firebase'
-import { VERSION, BUILD_DATE } from '../version'
 
 const NAV = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
@@ -9,6 +8,19 @@ const NAV = [
   { id: 'jobs',      icon: '🔍', label: 'Oferty pracy', soon: true },
   { id: 'analytics', icon: '📈', label: 'Analityka', soon: true },
 ]
+
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme()
+  return (
+    <button
+      onClick={toggleTheme}
+      className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+      style={{background:'var(--bg-input)', border:'1px solid var(--border)'}}
+      title={theme === 'dark' ? 'Tryb jasny' : 'Tryb ciemny'}>
+      {theme === 'dark' ? '☀️' : '🌙'}
+    </button>
+  )
+}
 
 export default function Sidebar({ user, page, setPage, appCount }) {
   const name = user?.displayName || user?.email?.split('@')[0] || '?'
@@ -62,8 +74,9 @@ export default function Sidebar({ user, page, setPage, appCount }) {
           </button>
         </div>
       </div>
-      <div className="px-4 pb-3 pt-1">
-        <p className="text-xs text-gray-200 font-mono">v{VERSION} · {BUILD_DATE}</p>
+      <div className="px-4 pb-3 pt-1 flex items-center justify-between">
+        <p className="text-xs font-mono" style={{color:'var(--text-muted)'}}>v{VERSION} · {BUILD_DATE}</p>
+        <ThemeToggle />
       </div>
     </aside>
   )

@@ -2,8 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── CSS Variables – Light & Dark ── */
+:root {
+  --bg-base:      #f9fafb;
+  --bg-card:      #ffffff;
+  --bg-input:     #f9fafb;
+  --bg-sidebar:   #ffffff;
+  --border:       #f3f4f6;
+  --border-input: #e5e7eb;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-muted:   #9ca3af;
+  --shadow:       0 1px 3px rgba(0,0,0,0.06);
+}
+
+.dark {
+  --bg-base:      #0a0a0a;
+  --bg-card:      #111111;
+  --bg-input:     #1a1a1a;
+  --bg-sidebar:   #0d0d0d;
+  --border:       #222222;
+  --border-input: #2a2a2a;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted:   #6b7280;
+  --shadow:       0 1px 3px rgba(0,0,0,0.4);
+}
+
 @layer base {
-  body { @apply bg-gray-50 text-gray-900; }
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
   * { box-sizing: border-box; }
 }
 
@@ -14,21 +45,42 @@
            hover:-translate-y-0.5 hover:shadow-lg hover:shadow-green-600/20;
   }
   .btn-ghost {
-    @apply border border-gray-200 text-gray-500 px-4 py-2 rounded-lg font-medium text-sm
-           hover:border-green-600 hover:text-green-600 transition-all duration-200;
+    @apply px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200;
+    border: 1px solid var(--border-input);
+    color: var(--text-secondary);
+  }
+  .btn-ghost:hover {
+    border-color: #16a34a;
+    color: #16a34a;
   }
   .card {
-    @apply bg-white border border-gray-100 rounded-2xl shadow-sm;
+    @apply rounded-2xl shadow-sm;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
   }
   .input {
-    @apply w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-sm
-           outline-none focus:border-green-500 transition-colors;
+    @apply w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-colors;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-input);
+    color: var(--text-primary);
   }
-  .status-sent    { @apply bg-blue-50 text-blue-600; }
-  .status-viewed  { @apply bg-yellow-50 text-yellow-600; }
+  .input:focus {
+    border-color: #16a34a;
+  }
+  .input::placeholder {
+    color: var(--text-muted);
+  }
+  .status-sent      { @apply bg-blue-50 text-blue-600; }
+  .status-viewed    { @apply bg-yellow-50 text-yellow-600; }
   .status-interview { @apply bg-purple-50 text-purple-600; }
-  .status-offer   { @apply bg-green-50 text-green-600; }
-  .status-rejected { @apply bg-red-50 text-red-500; }
+  .status-offer     { @apply bg-green-50 text-green-600; }
+  .status-rejected  { @apply bg-red-50 text-red-500; }
+
+  .dark .status-sent      { background: rgba(59,130,246,0.15); color: #93c5fd; }
+  .dark .status-viewed    { background: rgba(234,179,8,0.15);  color: #fde047; }
+  .dark .status-interview { background: rgba(168,85,247,0.15); color: #d8b4fe; }
+  .dark .status-offer     { background: rgba(34,197,94,0.15);  color: #86efac; }
+  .dark .status-rejected  { background: rgba(239,68,68,0.15);  color: #fca5a5; }
 }
 
 @keyframes fadeIn {
@@ -40,3 +92,4 @@
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d1fae5; border-radius: 3px; }
+.dark ::-webkit-scrollbar-thumb { background: #1a3a2a; }
