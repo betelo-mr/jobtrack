@@ -4,7 +4,7 @@ const FEATURES = [
   {
     icon: '📊',
     title: 'Analiza CV pod ofertę',
-    desc: 'Wklej ogłoszenie i CV – Claude wskaże brakujące słowa kluczowe, oceni dopasowanie i powie co zmienić. Wynik w 30 sekund.',
+    desc: 'Wklej ogłoszenie i CV – JobTrack wskaże brakujące słowa kluczowe, oceni dopasowanie i powie co zmienić. Wynik w 30 sekund.',
     color: 'from-blue-50 to-blue-100/50',
     accent: 'text-blue-600',
     badge: 'bg-blue-50 text-blue-600',
@@ -38,7 +38,7 @@ const FEATURES = [
 const FAQS = [
   {
     q: 'Czy AI wymyśla informacje w moim CV?',
-    a: 'Nie. Claude przepisuje tylko to co już masz w CV – zmienia język i akcenty, nie dodaje fałszywych doświadczeń. Twoje CV pozostaje w 100% prawdziwe.',
+    a: 'Nie. JobTrack przepisuje tylko to co już masz w CV – zmienia język i akcenty, nie dodaje fałszywych doświadczeń. Twoje CV pozostaje w 100% prawdziwe.',
   },
   {
     q: 'Czy moje CV jest bezpieczne?',
@@ -114,7 +114,7 @@ export default function LandingPage({ onLogin }) {
         <div className="max-w-4xl mx-auto text-center relative">
           <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-1.5 text-xs font-semibold text-green-700 mb-6">
             <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-            Powered by Claude AI · Beta
+            AI Career Assistant · Beta
           </div>
           <h1 className="font-display text-5xl sm:text-6xl font-black text-gray-900 leading-tight mb-6">
             Twoje CV wreszcie<br />
@@ -191,7 +191,7 @@ export default function LandingPage({ onLogin }) {
             {[
               { step: '01', title: 'Wgraj CV', desc: 'Wklej tekst lub wgraj PDF. Obsługujemy wszystkie formaty.' },
               { step: '02', title: 'Wklej ogłoszenie', desc: 'Skopiuj treść oferty pracy z dowolnego portalu.' },
-              { step: '03', title: 'Dostań wyniki', desc: 'Claude analizuje dopasowanie i przepisuje CV w 30 sekund.' },
+              { step: '03', title: 'Dostań wyniki', desc: 'JobTrack analizuje dopasowanie i przepisuje CV w 30 sekund.' },
             ].map((s, i) => (
               <div key={i} className="text-center relative">
                 {i < 2 && <div className="hidden sm:block absolute top-8 left-full w-full h-px bg-gradient-to-r from-green-300 to-transparent -translate-x-4" />}
@@ -348,7 +348,7 @@ export default function LandingPage({ onLogin }) {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <span className="font-display font-black text-green-600">JobTrack</span>
-            <span className="text-xs text-gray-400 ml-2">© 2026 · Powered by Claude AI</span>
+            <span className="text-xs text-gray-400 ml-2">© 2026 · JobTrack AI</span>
           </div>
           <div className="flex gap-6 text-xs text-gray-400">
             <a href="#" className="hover:text-gray-600 transition-colors">Polityka prywatności</a>

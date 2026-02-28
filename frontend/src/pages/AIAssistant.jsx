@@ -210,7 +210,7 @@ export default function AIAssistant() {
       {tab === 'cv' && (
         <div>
           <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-100 rounded-xl p-4 mb-5 text-sm text-gray-500">
-            🤖 Wklej treść ogłoszenia i swoje CV (lub wgraj PDF) – Claude przeanalizuje dopasowanie i zasugeruje konkretne zmiany.
+            🤖 Wklej treść ogłoszenia i swoje CV (lub wgraj PDF) – JobTrack przeanalizuje dopasowanie i zasugeruje konkretne zmiany.
           </div>
           <div className="card p-5 mb-5">
             <div className="grid grid-cols-2 gap-4 mb-4">
@@ -237,7 +237,7 @@ export default function AIAssistant() {
       {tab === 'tailor' && (
         <div>
           <div className="bg-gradient-to-r from-purple-50 to-green-50 border border-purple-100 rounded-xl p-4 mb-5 text-sm text-gray-500">
-            ✂️ Wklej CV i ogłoszenie – Claude przepisze CV dopasowując język, słowa kluczowe i kolejność sekcji do tej konkretnej oferty. Żadnych wymyślonych informacji – tylko Twoje doświadczenie, lepiej opowiedziane.
+            ✂️ Wklej CV i ogłoszenie – JobTrack przepisze CV dopasowując język, słowa kluczowe i kolejność sekcji do tej konkretnej oferty. Żadnych wymyślonych informacji – tylko Twoje doświadczenie, lepiej opowiedziane.
           </div>
           <div className="card p-5 mb-5">
             <div className="grid grid-cols-2 gap-4 mb-4">
@@ -265,7 +265,7 @@ export default function AIAssistant() {
       {tab === 'skills' && (
         <div>
           <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-100 rounded-xl p-4 mb-5 text-sm text-gray-500">
-            🗺️ Podaj cel zawodowy i wklej CV – Claude wyciągnie Twoje umiejętności i stworzy spersonalizowany plan rozwoju.
+            🗺️ Podaj cel zawodowy i wklej CV – JobTrack wyciągnie Twoje umiejętności i stworzy spersonalizowany plan rozwoju.
           </div>
           <div className="card p-5 mb-5">
             <div className="mb-4">

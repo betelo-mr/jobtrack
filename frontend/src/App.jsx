@@ -17,7 +17,7 @@ import UpgradeModal from './components/UpgradeModal'
 const PAGE_TITLES = {
   dashboard: { title: 'Dashboard', sub: user => `Witaj z powrotem, ${user?.displayName?.split(' ')[0] || 'użytkowniku'}! 👋` },
   tracker:   { title: 'Moje aplikacje', sub: () => 'Śledź wszystkie aplikacje w jednym miejscu.' },
-  ai:        { title: 'AI Asystent', sub: () => 'Analiza CV i mapa umiejętności powered by Claude.' },
+  ai:        { title: 'AI Asystent', sub: () => 'Analiza CV i mapa umiejętności powered by AI.' },
   jobs:      { title: 'Oferty pracy', sub: () => 'Oferty z LinkedIn, Pracuj.pl, NoFluffJobs i więcej.' },
   analytics: { title: 'Analityka', sub: () => 'Analizuj skuteczność i popraw wyniki.' },
 }
@@ -29,6 +29,13 @@ export default function App() {
   const [showModal, setShowModal] = useState(false)
   const [showAuth, setShowAuth] = useState(false)
   const [showUpgrade, setShowUpgrade] = useState(false)
+
+  // Listen for upgrade event from any component
+  useState(() => {
+    const handler = () => setShowUpgrade(true)
+    window.addEventListener('show-upgrade', handler)
+    return () => window.removeEventListener('show-upgrade', handler)
+  })
 
   // Loading state
   if (user === undefined) {
