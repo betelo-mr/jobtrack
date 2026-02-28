@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAuth } from './context/AuthContext'
 import { useApplications } from './hooks/useApplications'
 import AuthPage from './pages/AuthPage'
+import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import Tracker from './pages/Tracker'
 import AIAssistant from './pages/AIAssistant'
@@ -24,6 +25,7 @@ export default function App() {
   const { applications, loading, addApplication, deleteApplication } = useApplications(user?.uid)
   const [page, setPage] = useState('dashboard')
   const [showModal, setShowModal] = useState(false)
+  const [showAuth, setShowAuth] = useState(false)
 
   // Loading state
   if (user === undefined) {
@@ -34,8 +36,11 @@ export default function App() {
     )
   }
 
-  // Not logged in
-  if (!user) return <AuthPage />
+  // Not logged in – show landing or auth
+  if (!user) {
+    if (showAuth) return <AuthPage />
+    return <LandingPage onLogin={() => setShowAuth(true)} />
+  }
 
   const pageInfo = PAGE_TITLES[page]
 
