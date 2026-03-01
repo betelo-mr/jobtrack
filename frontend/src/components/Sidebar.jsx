@@ -1,7 +1,5 @@
 import { signOut } from 'firebase/auth'
 import { auth } from '../firebase'
-import { VERSION, BUILD_DATE } from '../version'
-import { useTheme } from '../context/ThemeContext'
 
 const NAV = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
@@ -10,6 +8,31 @@ const NAV = [
   { id: 'jobs',      icon: '🔍', label: 'Oferty pracy', soon: true },
   { id: 'analytics', icon: '📈', label: 'Analityka', soon: true },
 ]
+
+function VersionBadge() {
+  const [showChangelog, setShowChangelog] = useState(false)
+  const lastSeen = localStorage.getItem('jobtrack-last-seen-version')
+  const hasNew = lastSeen !== VERSION
+
+  function handleClick() {
+    localStorage.setItem('jobtrack-last-seen-version', VERSION)
+    setShowChangelog(true)
+  }
+
+  return (
+    <>
+      <div className="px-4 pb-3 pt-1 flex items-center justify-between">
+        <button onClick={handleClick}
+          className="flex items-center gap-1.5 hover:opacity-70 transition-opacity">
+          <p className="text-xs font-mono" style={{color:'var(--text-muted)'}}>v{VERSION} · {BUILD_DATE}</p>
+          {hasNew && <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />}
+        </button>
+        <ThemeToggle />
+      </div>
+      {showChangelog && <ChangelogModal onClose={() => setShowChangelog(false)} />}
+    </>
+  )
+}
 
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
@@ -76,10 +99,7 @@ export default function Sidebar({ user, page, setPage, appCount }) {
           </button>
         </div>
       </div>
-      <div className="px-4 pb-3 pt-1 flex items-center justify-between">
-        <p className="text-xs font-mono" style={{color:'var(--text-muted)'}}>v{VERSION} · {BUILD_DATE}</p>
-        <ThemeToggle />
-      </div>
+      <VersionBadge />
     </aside>
   )
 }
