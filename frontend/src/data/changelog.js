@@ -1,5 +1,14 @@
 export const CHANGELOG = [
   {
+    version: '1.8.2',
+    date: '2026-03-01',
+    changes: [
+      '🆕 Sekcja "Co nowego?" – kliknij numer wersji w sidebarze',
+      '🟢 Zielona kropka informuje o nowych zmianach',
+      '🐛 Poprawki stabilności aplikacji',
+    ]
+  },
+  {
     version: '1.8.1',
     date: '2026-02-28',
     changes: [

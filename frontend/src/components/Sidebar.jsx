@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { VERSION, BUILD_DATE } from '../version'
 import { signOut } from 'firebase/auth'
 import { auth } from '../firebase'
+import { VERSION, BUILD_DATE } from '../version'
+import { useTheme } from '../context/ThemeContext'
+import ChangelogModal from './ChangelogModal'
 
 const NAV = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
@@ -53,19 +55,22 @@ export default function Sidebar({ user, page, setPage, appCount }) {
   const name = user?.displayName || user?.email?.split('@')[0] || '?'
 
   return (
-    <aside className="fixed top-0 left-0 w-60 h-screen bg-white border-r border-gray-100 flex flex-col shadow-sm z-50">
-      <div className="px-6 py-5 border-b border-gray-100">
+    <aside className="fixed top-0 left-0 w-60 h-screen flex flex-col shadow-sm z-50"
+      style={{backgroundColor:'var(--bg-sidebar)', borderRight:'1px solid var(--border)'}}>
+      <div className="px-6 py-5" style={{borderBottom:'1px solid var(--border)'}}>
         <h1 className="font-display text-xl font-black text-green-600 tracking-tight">JobTrack</h1>
-        <p className="text-xs text-gray-400 font-light mt-0.5">Career Assistant</p>
+        <p className="text-xs font-light mt-0.5" style={{color:'var(--text-muted)'}}>Career Assistant</p>
       </div>
 
       <nav className="flex-1 py-3">
         {NAV.map(item => (
           <button key={item.id} onClick={() => setPage(item.id)}
-            className={`w-full flex items-center gap-3 px-6 py-2.5 text-sm font-medium transition-all border-l-2
-              ${page === item.id
-                ? 'text-green-600 bg-green-50 border-green-600'
-                : 'text-gray-400 border-transparent hover:text-gray-700 hover:bg-gray-50'}`}>
+            className={`w-full flex items-center gap-3 px-6 py-2.5 text-sm font-medium transition-all border-l-2 ${
+              page === item.id
+                ? 'text-green-600 bg-green-500/10 border-green-600'
+                : 'border-transparent hover:bg-white/5'
+            }`}
+            style={{color: page === item.id ? '#16a34a' : 'var(--text-secondary)'}}>
             <span className="text-base w-5 text-center">{item.icon}</span>
             <span>{item.label}</span>
             {item.id === 'tracker' && appCount > 0 && (
@@ -82,7 +87,7 @@ export default function Sidebar({ user, page, setPage, appCount }) {
         ))}
       </nav>
 
-      <div className="px-4 py-4 border-t border-gray-100">
+      <div className="px-4 py-4" style={{borderTop:'1px solid var(--border)'}}>
         <div className="flex items-center gap-3">
           {user?.photoURL
             ? <img src={user.photoURL} className="w-8 h-8 rounded-full object-cover" alt="avatar" />
@@ -91,16 +96,18 @@ export default function Sidebar({ user, page, setPage, appCount }) {
               </div>
           }
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-800 truncate">{name}</p>
-            <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+            <p className="text-sm font-semibold truncate" style={{color:'var(--text-primary)'}}>{name}</p>
+            <p className="text-xs truncate" style={{color:'var(--text-muted)'}}>{user?.email}</p>
           </div>
           <button onClick={() => signOut(auth)}
             title="Wyloguj"
-            className="text-gray-300 hover:text-red-400 transition-colors text-sm p-1 rounded">
+            className="hover:text-red-400 transition-colors text-sm p-1 rounded"
+            style={{color:'var(--text-muted)'}}>
             ↩
           </button>
         </div>
       </div>
+
       <VersionBadge />
     </aside>
   )
