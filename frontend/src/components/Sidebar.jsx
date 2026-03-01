@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { VERSION, BUILD_DATE } from '../version'
 import { signOut } from 'firebase/auth'
 import { auth } from '../firebase'
 
