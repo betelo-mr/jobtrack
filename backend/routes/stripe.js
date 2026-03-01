@@ -22,6 +22,7 @@ router.post('/create-checkout', async (req, res) => {
       success_url: `${FRONTEND_URL}/?payment=success`,
       cancel_url: `${FRONTEND_URL}/?payment=cancelled`,
       locale: 'pl',
+      allow_promotion_codes: true,
     })
 
     res.json({ url: session.url })
