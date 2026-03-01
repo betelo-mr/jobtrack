@@ -13,6 +13,10 @@ import Sidebar from './components/Sidebar'
 import AddAppModal from './components/AddAppModal'
 import Toast, { showToast } from './components/Toast'
 import UpgradeModal from './components/UpgradeModal'
+import OnboardingWizard from './components/OnboardingWizard'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from './firebase'
+import { useEffect } from 'react'
 
 const PAGE_TITLES = {
   dashboard: { title: 'Dashboard', sub: user => `Witaj z powrotem, ${user?.displayName?.split(' ')[0] || 'użytkowniku'}! 👋` },
@@ -29,6 +33,16 @@ export default function App() {
   const [showModal, setShowModal] = useState(false)
   const [showAuth, setShowAuth] = useState(false)
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+
+  useEffect(() => {
+    if (!user) return
+    getDoc(doc(db, 'users', user.uid)).then(snap => {
+      if (!snap.exists() || !snap.data()?.onboardingCompleted) {
+        setShowOnboarding(true)
+      }
+    })
+  }, [user])
 
   // Listen for upgrade event from any component
   useState(() => {
@@ -109,6 +123,7 @@ export default function App() {
       {showModal && <AddAppModal onClose={() => setShowModal(false)} onSave={handleAddApplication} />}
       <Toast />
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
+      {showOnboarding && <OnboardingWizard onComplete={() => setShowOnboarding(false)} />}
     </div>
   )
 }
