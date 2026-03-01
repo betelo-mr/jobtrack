@@ -14,7 +14,7 @@ import AddAppModal from './components/AddAppModal'
 import Toast, { showToast } from './components/Toast'
 import UpgradeModal from './components/UpgradeModal'
 import OnboardingWizard from './components/OnboardingWizard'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { db } from './firebase'
 import { useEffect } from 'react'
 
@@ -69,8 +69,18 @@ export default function App() {
   // Handle Stripe return
   const urlParams = new URLSearchParams(window.location.search)
   if (urlParams.get('payment') === 'success') {
-    showToast('🎉 Witamy w Pro! Dziękujemy za subskrypcję.')
     window.history.replaceState({}, '', '/')
+    // Zapisz isPro w Firestore
+    if (user) {
+      setDoc(doc(db, 'users', user.uid), {
+        isPro: true,
+        proActivatedAt: new Date().toISOString(),
+      }, { merge: true })
+        .then(() => showToast('🎉 Witamy w Pro! Twoje konto zostało uaktualnione.'))
+        .catch(() => showToast('🎉 Płatność przyjęta! Odśwież stronę aby aktywować Pro.'))
+    } else {
+      showToast('🎉 Płatność przyjęta! Zaloguj się aby aktywować Pro.')
+    }
   }
 
   const pageInfo = PAGE_TITLES[page]

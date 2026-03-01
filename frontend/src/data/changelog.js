@@ -1,12 +1,12 @@
 export const CHANGELOG = [
   {
-  version: '1.8.3',
-  date: '2026-03-01',
-  changes: [
-    '🏷️ Kod rabatowy BETA50 – 50% przez 3 miesiące dla pierwszych 50 userów',
-    '💳 Pole na kod promocyjny widoczne w formularzu płatności',
-  ]
-},
+    version: '1.8.4',
+    date: '2026-03-01',
+    changes: [
+      '⚡ Automatyczna aktywacja konta Pro po płatności',
+      '🔄 Webhook Stripe – dezaktywacja Pro po anulowaniu subskrypcji',
+    ]
+  },
   {
     version: '1.8.2',
     date: '2026-03-01',
