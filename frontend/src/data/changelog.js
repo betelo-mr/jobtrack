@@ -1,5 +1,14 @@
 export const CHANGELOG = [
   {
+    version: '1.8.5',
+    date: '2026-03-01',
+    changes: [
+      '🟢 Badge PRO przy nazwie użytkownika w sidebarze',
+      '⚙️ Przycisk "Zarządzaj subskrypcją" zamiast "Przejdź na Pro" dla Pro userów',
+      '🔒 Pro userzy nie widzą już przycisku zakupu',
+    ]
+  },
+  {
     version: '1.8.4',
     date: '2026-03-01',
     changes: [

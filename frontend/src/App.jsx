@@ -34,6 +34,7 @@ export default function App() {
   const [showAuth, setShowAuth] = useState(false)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [isPro, setIsPro] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -41,6 +42,7 @@ export default function App() {
       if (!snap.exists() || !snap.data()?.onboardingCompleted) {
         setShowOnboarding(true)
       }
+      setIsPro(snap.exists() ? snap.data()?.isPro === true : false)
     })
   }, [user])
 
@@ -97,7 +99,7 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar user={user} page={page} setPage={setPage} appCount={applications.length} />
+      <Sidebar user={user} page={page} setPage={setPage} appCount={applications.length} isPro={isPro} />
 
       <main className="ml-60 flex-1">
         {/* Topbar */}
@@ -106,7 +108,25 @@ export default function App() {
             <h2 className="font-display font-bold text-xl text-gray-800">{pageInfo.title}</h2>
             <p className="text-sm text-gray-400 font-light mt-0.5">{pageInfo.sub(user)}</p>
           </div>
-          <button onClick={() => setShowUpgrade(true)} className="btn-ghost mr-2 text-sm">⚡ Pro</button>
+          {isPro ? (
+            <button onClick={async () => {
+              try {
+                const res = await fetch('/stripe/customer-portal', {
+                  method: 'POST',
+                  headers: {'Content-Type':'application/json'},
+                  body: JSON.stringify({ userEmail: user.email })
+                })
+                const data = await res.json()
+                if (data.url) window.location.href = data.url
+              } catch(e) { showToast('Błąd otwierania portalu Stripe') }
+            }}
+              className="btn-ghost mr-2 text-sm flex items-center gap-1.5">
+              <span className="w-2 h-2 bg-green-500 rounded-full inline-block"></span>
+              Pro · Zarządzaj
+            </button>
+          ) : (
+            <button onClick={() => setShowUpgrade(true)} className="btn-ghost mr-2 text-sm">⚡ Przejdź na Pro</button>
+          )}
           <button onClick={() => setShowModal(true)} className="btn-primary">
             <span>+</span> Dodaj aplikację
           </button>

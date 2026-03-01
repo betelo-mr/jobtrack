@@ -51,7 +51,7 @@ function ThemeToggle() {
   )
 }
 
-export default function Sidebar({ user, page, setPage, appCount }) {
+export default function Sidebar({ user, page, setPage, appCount, isPro }) {
   const name = user?.displayName || user?.email?.split('@')[0] || '?'
 
   return (
@@ -96,7 +96,10 @@ export default function Sidebar({ user, page, setPage, appCount }) {
               </div>
           }
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate" style={{color:'var(--text-primary)'}}>{name}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-semibold truncate" style={{color:'var(--text-primary)'}}>{name}</p>
+              {isPro && <span className="text-xs bg-green-600 text-white px-1.5 py-0.5 rounded-full font-bold shrink-0">PRO</span>}
+            </div>
             <p className="text-xs truncate" style={{color:'var(--text-muted)'}}>{user?.email}</p>
           </div>
           <button onClick={() => signOut(auth)}
