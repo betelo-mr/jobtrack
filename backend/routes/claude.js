@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { checkAndIncrementUsage } from './usage.js'
 import { Router } from 'express'
 import multer from 'multer'
 import pdfParse from 'pdf-parse/lib/pdf-parse.js'
@@ -24,7 +25,6 @@ async function extractCvText(req) {
   if (req.file) {
     const parsed = await pdfParse(req.file.buffer)
     if (!parsed.text?.trim()) throw new Error('Nie udało się odczytać tekstu z PDF. Upewnij się, że PDF nie jest skanem.')
-    // Limit CV text to ~3000 chars to avoid token overflow
     return parsed.text.trim().slice(0, 3000)
   }
   return (req.body.cvText || '').slice(0, 3000)
@@ -35,11 +35,16 @@ router.post('/analyze-cv', upload.single('cvPdf'), async (req, res) => {
   try {
     const jobDesc = req.body.jobDesc
     if (!jobDesc) return res.status(400).json({ error: 'Brakuje treści ogłoszenia.' })
+    const userId = req.body.userId || req.headers['x-user-id']
+    if (userId) {
+      const usage = await checkAndIncrementUsage(userId)
+      if (!usage.allowed) return res.status(429).json({ error: 'LIMIT_REACHED', remaining: 0, limit: usage.limit })
+    }
     const cvText = await extractCvText(req)
     if (!cvText.trim()) return res.status(400).json({ error: 'Brakuje treści CV.' })
 
     const message = await client.messages.create({
-      model: 'claude-opus-4-6',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1500,
       messages: [{
         role: 'user',
@@ -75,6 +80,11 @@ router.post('/analyze-skills', upload.single('cvPdf'), async (req, res) => {
   try {
     const goal = req.body.goal
     if (!goal) return res.status(400).json({ error: 'Podaj cel zawodowy.' })
+    const userId = req.body.userId || req.headers['x-user-id']
+    if (userId) {
+      const usage = await checkAndIncrementUsage(userId)
+      if (!usage.allowed) return res.status(429).json({ error: 'LIMIT_REACHED', remaining: 0, limit: usage.limit })
+    }
     const cvText = await extractCvText(req)
     if (!cvText.trim()) return res.status(400).json({ error: 'Wklej CV lub wgraj PDF.' })
 
@@ -88,7 +98,7 @@ router.post('/analyze-skills', upload.single('cvPdf'), async (req, res) => {
 CV:
 ${cvText}
 
-Odpowiedz TYLKO w formacie JSON (bez markdown, bez \`\`\`). Bądź zwięzły – max 5 skills, 4 kroki roadmapy, 4 kursy. Każdy opis max 80 znaków:
+Odpowiedz TYLKO w formacie JSON (bez markdown, bez \`\`\`). Max 5 skills, 4 kroki roadmapy, 4 kursy. Każdy opis max 80 znaków:
 {
   "readiness": <0-100>,
   "timeEstimate": "<np. ~3 mies.>",
@@ -110,6 +120,56 @@ Odpowiedz TYLKO w formacie JSON (bez markdown, bez \`\`\`). Bądź zwięzły –
   } catch(e) {
     console.error(e)
     res.status(500).json({ error: 'Błąd analizy: ' + e.message })
+  }
+})
+
+// ── TAILOR CV ──
+router.post('/tailor-cv', upload.single('cvPdf'), async (req, res) => {
+  try {
+    const jobDesc = req.body.jobDesc
+    if (!jobDesc) return res.status(400).json({ error: 'Brakuje treści ogłoszenia.' })
+    const userId = req.body.userId || req.headers['x-user-id']
+    if (userId) {
+      const usage = await checkAndIncrementUsage(userId)
+      if (!usage.allowed) return res.status(429).json({ error: 'LIMIT_REACHED', remaining: 0, limit: usage.limit })
+    }
+    const cvText = await extractCvText(req)
+    if (!cvText.trim()) return res.status(400).json({ error: 'Brakuje treści CV.' })
+
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4000,
+      messages: [{
+        role: 'user',
+        content: `Jesteś ekspertem kariery i copywriterem CV. Dostosuj CV kandydata do konkretnej oferty pracy.
+
+ZASADY:
+- Nie wymyślaj nowych doświadczeń ani umiejętności których nie ma w CV
+- Przepisz istniejące treści używając języka i słów kluczowych z ogłoszenia
+- Przebuduj kolejność i akcenty – wysuń na pierwszy plan to co pasuje do oferty
+- Popraw podsumowanie zawodowe pod tę konkretną rolę
+- Zachowaj wszystkie daty, firmy i stanowiska – tylko język może się zmienić
+- Pisz po polsku jeśli CV jest po polsku, po angielsku jeśli po angielsku
+
+OGŁOSZENIE:
+${jobDesc.slice(0, 2000)}
+
+CV KANDYDATA:
+${cvText}
+
+Odpowiedz TYLKO w formacie JSON (bez markdown, bez \`\`\`):
+{
+  "summary": "<1 zdanie co zostało zmienione i dlaczego>",
+  "changes": ["zmiana 1 max 80 znaków", "zmiana 2", "zmiana 3", "zmiana 4"],
+  "tailoredCV": "<pełne przepisane CV w formacie markdown>"
+}`
+      }]
+    })
+
+    res.json(parseJSON(message.content[0].text))
+  } catch(e) {
+    console.error(e)
+    res.status(500).json({ error: 'Błąd dostosowania CV: ' + e.message })
   }
 })
 

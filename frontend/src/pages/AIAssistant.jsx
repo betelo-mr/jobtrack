@@ -110,7 +110,12 @@ export default function AIAssistant() {
     if (cvInputMode === 'pdf' && !cvFile) { setError('Wgraj plik PDF z CV.'); return }
     setCvLoading(true); setError(''); setCvResult(null)
     const usageCheck = await incrementUsage()
-    if (!usageCheck.allowed) { setError('LIMIT_REACHED'); setCvLoading(false); return }
+    if (!usageCheck.allowed) {
+      setError(usageCheck.reason === 'daily'
+        ? 'Osiągnąłeś dzienny limit 30 analiz. Wróć jutro!'
+        : 'Wykorzystałeś limit 3 analiz w tym miesiącu. Przejdź na Pro!')
+      setCvLoading(false); return
+    }
     try {
       let body, headers = {}
       if (cvInputMode === 'pdf') {
@@ -133,7 +138,12 @@ export default function AIAssistant() {
     if (skillsCvInputMode === 'pdf' && !skillsCvFile) { setError('Wgraj plik PDF z CV.'); return }
     setSkillsLoading(true); setError(''); setSkillsResult(null)
     const usageCheck = await incrementUsage()
-    if (!usageCheck.allowed) { setError('LIMIT_REACHED'); setSkillsLoading(false); return }
+    if (!usageCheck.allowed) {
+      setError(usageCheck.reason === 'daily'
+        ? 'Osiągnąłeś dzienny limit 30 analiz. Wróć jutro!'
+        : 'Wykorzystałeś limit 3 analiz w tym miesiącu. Przejdź na Pro!')
+      setSkillsLoading(false); return
+    }
     try {
       let body, headers = {}
       if (skillsCvInputMode === 'pdf') {
@@ -156,7 +166,12 @@ export default function AIAssistant() {
     if (tailorCvInputMode === 'pdf' && !tailorCvFile) { setError('Wgraj plik PDF z CV.'); return }
     setTailorLoading(true); setError(''); setTailorResult(null)
     const usageCheck = await incrementUsage()
-    if (!usageCheck.allowed) { setError('LIMIT_REACHED'); setTailorLoading(false); return }
+    if (!usageCheck.allowed) {
+      setError(usageCheck.reason === 'daily'
+        ? 'Osiągnąłeś dzienny limit 30 analiz. Wróć jutro!'
+        : 'Wykorzystałeś limit 3 analiz w tym miesiącu. Przejdź na Pro!')
+      setTailorLoading(false); return
+    }
     try {
       let body, headers = {}
       if (tailorCvInputMode === 'pdf') {
@@ -196,7 +211,7 @@ export default function AIAssistant() {
           <span className={usage.remaining === 0 ? 'text-red-600' : 'text-yellow-700'}>
             {usage.remaining === 0
               ? '⚠️ Limit analiz wyczerpany na ten miesiąc'
-              : `⚡ Pozostało ${usage.remaining} z ${usage.limit} darmowych analiz w tym miesiącu`}
+              : `${usage.isPro ? `⚡ Pozostało ${usage.remaining} z 30 analiz dziś` : `⚡ Pozostało ${usage.remaining} z ${usage.limit} darmowych analiz w tym miesiącu`}`}
           </span>
           <button onClick={() => window.dispatchEvent(new CustomEvent('show-upgrade'))}
             className="text-xs font-bold text-green-600 hover:text-green-700 transition-colors ml-3 shrink-0">

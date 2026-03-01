@@ -3,11 +3,17 @@ import { useAuth } from '../context/AuthContext'
 import { db } from '../firebase'
 import { doc, getDoc, setDoc, increment } from 'firebase/firestore'
 
-const FREE_LIMIT = 3
+const FREE_LIMIT = 3        // miesięczny limit dla Free
+const PRO_DAILY_LIMIT = 30  // dzienny limit dla Pro
 
 function getMonthKey() {
   const now = new Date()
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+
+function getDayKey() {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 }
 
 export function useUsage() {
@@ -18,21 +24,29 @@ export function useUsage() {
     if (!user) return
     try {
       const monthKey = getMonthKey()
+      const dayKey = getDayKey()
       const usageRef = doc(db, 'users', user.uid, 'usage', monthKey)
+      const dailyRef = doc(db, 'users', user.uid, 'usage', `day-${dayKey}`)
       const userRef = doc(db, 'users', user.uid)
 
-      const [usageSnap, userSnap] = await Promise.all([
+      const [usageSnap, dailySnap, userSnap] = await Promise.all([
         getDoc(usageRef),
+        getDoc(dailyRef),
         getDoc(userRef)
       ])
 
       const count = usageSnap.exists() ? usageSnap.data().count || 0 : 0
+      const dailyCount = dailySnap.exists() ? dailySnap.data().count || 0 : 0
       const isPro = userSnap.exists() ? userSnap.data()?.isPro === true : false
 
       setUsage({
         count,
+        dailyCount,
         limit: FREE_LIMIT,
-        remaining: isPro ? 999 : Math.max(0, FREE_LIMIT - count),
+        dailyLimit: PRO_DAILY_LIMIT,
+        remaining: isPro
+          ? Math.max(0, PRO_DAILY_LIMIT - dailyCount)
+          : Math.max(0, FREE_LIMIT - count),
         isPro,
         month: monthKey,
       })
@@ -45,27 +59,42 @@ export function useUsage() {
     if (!user) return { allowed: true }
     try {
       const monthKey = getMonthKey()
+      const dayKey = getDayKey()
       const usageRef = doc(db, 'users', user.uid, 'usage', monthKey)
+      const dailyRef = doc(db, 'users', user.uid, 'usage', `day-${dayKey}`)
       const userRef = doc(db, 'users', user.uid)
 
-      const [usageSnap, userSnap] = await Promise.all([
+      const [usageSnap, dailySnap, userSnap] = await Promise.all([
         getDoc(usageRef),
+        getDoc(dailyRef),
         getDoc(userRef)
       ])
 
       const count = usageSnap.exists() ? usageSnap.data().count || 0 : 0
+      const dailyCount = dailySnap.exists() ? dailySnap.data().count || 0 : 0
       const isPro = userSnap.exists() ? userSnap.data()?.isPro === true : false
 
+      // Free: sprawdź miesięczny limit
       if (!isPro && count >= FREE_LIMIT) {
-        return { allowed: false, count, remaining: 0, isPro }
+        return { allowed: false, count, remaining: 0, isPro, reason: 'monthly' }
       }
 
-      await setDoc(usageRef, { count: increment(1), updatedAt: new Date() }, { merge: true })
+      // Pro: sprawdź dzienny limit
+      if (isPro && dailyCount >= PRO_DAILY_LIMIT) {
+        return { allowed: false, dailyCount, remaining: 0, isPro, reason: 'daily' }
+      }
+
+      // Increment
+      await Promise.all([
+        setDoc(usageRef, { count: increment(1), updatedAt: new Date() }, { merge: true }),
+        setDoc(dailyRef, { count: increment(1), updatedAt: new Date() }, { merge: true }),
+      ])
+
       await fetchUsage()
-      return { allowed: true, count: count + 1, isPro }
+      return { allowed: true, isPro }
     } catch(e) {
       console.error('Usage increment error:', e)
-      return { allowed: true } // fail open – nie blokuj przy błędzie
+      return { allowed: true } // fail open
     }
   }
 
