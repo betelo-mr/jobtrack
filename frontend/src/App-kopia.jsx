@@ -41,21 +41,15 @@ export default function App() {
   useEffect(() => {
     if (!user) return
     getDoc(doc(db, 'users', user.uid)).then(snap => {
-      const data = snap.exists() ? snap.data() : {}
-      // Pokaż onboarding tylko jeśli pole NIE istnieje w Firestore
-      if (snap.exists() && data.onboardingCompleted === true) {
-        setShowOnboarding(false)
-      } else if (!snap.exists()) {
-        setShowOnboarding(true)
-      } else if (data.onboardingCompleted !== true) {
+      if (!snap.exists() || !snap.data()?.onboardingCompleted) {
         setShowOnboarding(true)
       }
-      setIsPro(data?.isPro === true)
+      setIsPro(snap.exists() ? snap.data()?.isPro === true : false)
     })
   }, [user])
 
   // Listen for upgrade event from any component
-  useEffect(() => {
+  useState(() => {
     const handler = () => setShowUpgrade(true)
     window.addEventListener('show-upgrade', handler)
     return () => window.removeEventListener('show-upgrade', handler)
