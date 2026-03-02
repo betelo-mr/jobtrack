@@ -42,7 +42,8 @@ export default function App() {
     if (!user) return
     //getDoc(doc(db, 'users', user.uid)).then(snap => {
       getDoc(doc(db, 'users', user.uid)).then(snap => {
-  console.log('Firestore snap:', snap.exists(), snap.data())
+        console.log('User UID:', user.uid) 
+        console.log('Firestore snap:', snap.exists(), snap.data())
       const data = snap.exists() ? snap.data() : {}
       // Pokaż onboarding tylko jeśli pole NIE istnieje w Firestore
       if (snap.exists() && data.onboardingCompleted === true) {
