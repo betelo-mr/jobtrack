@@ -15,7 +15,7 @@ import Toast, { showToast } from './components/Toast'
 import UpgradeModal from './components/UpgradeModal'
 import OnboardingWizard from './components/OnboardingWizard'
 import { useSession } from './hooks/useSession'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { doc, getDoc, getDocFromServer, setDoc } from 'firebase/firestore'
 import { db } from './firebase'
 import { useEffect } from 'react'
 
@@ -40,10 +40,7 @@ export default function App() {
 
   useEffect(() => {
     if (!user) return
-    //getDoc(doc(db, 'users', user.uid)).then(snap => {
-      getDoc(doc(db, 'users', user.uid)).then(snap => {
-        console.log('User UID:', user.uid) 
-        console.log('Firestore snap:', snap.exists(), snap.data())
+    getDocFromServer(doc(db, 'users', user.uid)).then(snap => {
       const data = snap.exists() ? snap.data() : {}
       // Pokaż onboarding tylko jeśli pole NIE istnieje w Firestore
       if (snap.exists() && data.onboardingCompleted === true) {
