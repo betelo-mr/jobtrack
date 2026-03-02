@@ -1,5 +1,13 @@
 export const CHANGELOG = [
   {
+    version: '1.8.6',
+    date: '2026-03-01',
+    changes: [
+      '🔒 Ochrona konta – tylko jedno aktywne urządzenie na raz',
+      '⚠️ Informacja gdy konto jest używane na innym urządzeniu',
+    ]
+  },
+  {
     version: '1.8.5',
     date: '2026-03-01',
     changes: [

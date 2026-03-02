@@ -14,6 +14,7 @@ import AddAppModal from './components/AddAppModal'
 import Toast, { showToast } from './components/Toast'
 import UpgradeModal from './components/UpgradeModal'
 import OnboardingWizard from './components/OnboardingWizard'
+import { useSession } from './hooks/useSession'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { db } from './firebase'
 import { useEffect } from 'react'
@@ -35,6 +36,7 @@ export default function App() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [isPro, setIsPro] = useState(false)
+  const { sessionValid, forceRelogin } = useSession(user)
 
   useEffect(() => {
     if (!user) return
@@ -102,6 +104,21 @@ export default function App() {
       <Sidebar user={user} page={page} setPage={setPage} appCount={applications.length} isPro={isPro} />
 
       <main className="ml-60 flex-1">
+        {/* Session invalid banner */}
+        {!sessionValid && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{backgroundColor:'rgba(0,0,0,0.7)'}}>
+            <div className="rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl" style={{backgroundColor:'var(--bg-card)'}}>
+              <div className="text-5xl mb-4">🔒</div>
+              <h2 className="font-display font-black text-xl mb-2" style={{color:'var(--text-primary)'}}>Konto aktywne gdzie indziej</h2>
+              <p className="text-sm mb-6" style={{color:'var(--text-secondary)'}}>
+                Twoje konto JobTrack zostało otwarte na innym urządzeniu. Jeden plan Pro = jedno urządzenie na raz.
+              </p>
+              <button onClick={() => forceRelogin(user)} className="btn-primary w-full justify-center py-3">
+                Używaj na tym urządzeniu
+              </button>
+            </div>
+          </div>
+        )}
         {/* Topbar */}
         <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100 px-8 py-4 flex items-center justify-between">
           <div>
