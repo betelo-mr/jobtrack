@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { db } from '../firebase'
-import { doc, setDoc, onSnapshot } from 'firebase/firestore'
+import { doc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore'
 
 function generateToken() {
   return Math.random().toString(36).substring(2) + Date.now().toString(36)
@@ -24,7 +24,7 @@ export function useSession(user) {
     tokenRef.current = token
 
     const userRef = doc(db, 'users', user.uid)
-    setDoc(userRef, { activeSessionToken: token }, { merge: true })
+    updateDoc(userRef, { activeSessionToken: token }).catch(() => setDoc(userRef, { activeSessionToken: token }, { merge: true }))
 
     const unsubscribe = onSnapshot(userRef, snap => {
       if (!snap.exists()) return
@@ -46,7 +46,7 @@ export function useSession(user) {
     const newToken = generateToken()
     localStorage.setItem(storageKey, newToken)
     tokenRef.current = newToken // zaktualizuj ref przed zapisem do Firestore
-    setDoc(doc(db, 'users', user.uid), { activeSessionToken: newToken }, { merge: true })
+    updateDoc(doc(db, 'users', user.uid), { activeSessionToken: newToken })
     setSessionValid(true)
   }
 
