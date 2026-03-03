@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth'
 import { auth, googleProvider } from '../firebase'
 
 const ERROR_MESSAGES = {
@@ -33,6 +33,7 @@ export default function AuthPage() {
     try {
       if (mode === 'register') {
         const cred = await createUserWithEmailAndPassword(auth, email, password)
+        await sendEmailVerification(cred.user)
         if (name) await updateProfile(cred.user, { displayName: name })
       } else {
         await signInWithEmailAndPassword(auth, email, password)

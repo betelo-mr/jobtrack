@@ -1,5 +1,13 @@
 export const CHANGELOG = [
   {
+  version: '1.9.2',
+  date: '2026-03-03',
+  changes: [
+    '📧 Email weryfikacyjny po rejestracji',
+    '⚡ Poprawki stabilności',
+  ]
+},
+  {
     version: '1.9.0',
     date: '2026-03-02',
     changes: [
