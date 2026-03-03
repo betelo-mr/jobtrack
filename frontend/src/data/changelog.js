@@ -6,8 +6,8 @@ export const CHANGELOG = [
     '📧 Blokowanie niepotwierdzonych email',
     '⚡ Poprawki stabilności',
   ]
-
-  {
+},
+{
   version: '1.9.2',
   date: '2026-03-03',
   changes: [
