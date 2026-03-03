@@ -40,6 +40,7 @@ useEffect(() => {
     if (!user) return
     getDocFromServer(doc(db, 'users', user.uid)).then(snap => {
       const data = snap.exists() ? snap.data() : {}
+      console.log('isPro state:', data?.isPro)
       setIsPro(data?.isPro === true)
     })
   }, [user])
