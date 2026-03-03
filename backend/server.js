@@ -6,6 +6,7 @@ import claudeRoutes from './routes/claude.js'
 import stripeRoutes from './routes/stripe.js'
 
 const app = express()
+app.set('trust proxy', 1)
 // Timeout 120 sekund dla długich zapytań AI
 app.use((req, res, next) => {
   res.setTimeout(120000, () => {
