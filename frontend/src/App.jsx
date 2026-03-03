@@ -39,10 +39,12 @@ export default function App() {
 useEffect(() => {
     if (!user) return
     getDocFromServer(doc(db, 'users', user.uid)).then(snap => {
-      const data = snap.exists() ? snap.data() : {}
-      console.log('isPro state:', data?.isPro)
-      setIsPro(data?.isPro === true)
-    })
+  const data = snap.exists() ? snap.data() : {}
+  console.log('UID:', user.uid)
+  console.log('snap exists:', snap.exists())
+  console.log('data:', JSON.stringify(data))
+  setIsPro(data?.isPro === true)
+})
   }, [user])
 
   // Listen for upgrade event from any component
