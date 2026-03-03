@@ -67,32 +67,7 @@ useEffect(() => {
     return <LandingPage onLogin={() => setShowAuth(true)} />
   }
 
-  // Email not verified
-  if (!user.emailVerified && user.providerData[0]?.providerId === 'password') {
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{backgroundColor:'var(--bg-main)'}}>
-      <div className="text-center max-w-sm">
-        <div className="text-5xl mb-4">📧</div>
-        <h2 className="font-display font-black text-xl mb-2" style={{color:'var(--text-primary)'}}>Potwierdź email</h2>
-        <p className="text-sm mb-6" style={{color:'var(--text-secondary)'}}>
-          Wysłaliśmy link weryfikacyjny na <strong>{user.email}</strong>. Sprawdź skrzynkę i kliknij link.
-        </p>
-        <button onClick={async () => { await user.reload(); window.location.reload() }}
-          className="btn-primary w-full justify-center mb-3">
-          Już potwierdziłem ✓
-        </button>
-        <button onClick={async () => { const { sendEmailVerification } = await import('firebase/auth'); await sendEmailVerification(user) }}
-          className="btn-ghost w-full justify-center text-sm mb-3">
-          Wyślij ponownie
-        </button>
-        <button onClick={() => signOut(auth)}
-          className="text-sm" style={{color:'var(--text-muted)'}}>
-          Wyloguj
-        </button>
-      </div>
-    </div>
-  )
-}
+  
   // Handle Stripe return
   const urlParams = new URLSearchParams(window.location.search)
   if (urlParams.get('payment') === 'success') {
