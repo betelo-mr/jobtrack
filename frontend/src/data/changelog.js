@@ -1,5 +1,22 @@
 export const CHANGELOG = [
   {
+    version: '1.9.0',
+    date: '2026-03-02',
+    changes: [
+      '📄 Regulamin serwisu JobTrack',
+      '🔒 Polityka Prywatności (RODO)',
+      '⚖️ Linki prawne w stopce landing page',
+    ]
+  },
+  {
+    version: '1.8.7',
+    date: '2026-03-02',
+    changes: [
+      '🧹 Uproszczenie aplikacji – usunięto wizard onboardingu',
+      '⚡ Szybsze ładowanie po zalogowaniu',
+    ]
+  },
+  {
     version: '1.8.6',
     date: '2026-03-01',
     changes: [

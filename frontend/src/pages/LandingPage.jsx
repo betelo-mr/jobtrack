@@ -348,7 +348,7 @@ export default function LandingPage({ onLogin }) {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <span className="font-display font-black text-green-600">JobTrack</span>
-            <span className="text-xs text-gray-400 ml-2">© 2026 · JobTrack AI</span>
+            <span className="text-xs text-gray-400 ml-2">© 2026 · JobTrack AI · <a href="/regulamin.html" className="hover:text-green-600 transition-colors">Regulamin</a> · <a href="/polityka-prywatnosci.html" className="hover:text-green-600 transition-colors">Polityka prywatności</a></span>
           </div>
           <div className="flex gap-6 text-xs text-gray-400">
             <a href="#" className="hover:text-gray-600 transition-colors">Polityka prywatności</a>
