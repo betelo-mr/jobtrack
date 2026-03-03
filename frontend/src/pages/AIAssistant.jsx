@@ -180,7 +180,7 @@ export default function AIAssistant() {
         headers['Content-Type'] = 'application/json'
         body = JSON.stringify({ jobDesc: tailorJobDesc, cvText: tailorCvText, userId: user?.uid })
       }
-      const res = await fetch('/api/tailor-cv', { method: 'POST', headers, body })
+      const res = await fetch('https://jobtrack-production-a4e0.up.railway.app/api/tailor-cv', { method: 'POST', headers, body })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Błąd serwera')
       setTailorResult(data)
