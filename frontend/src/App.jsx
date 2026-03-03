@@ -77,14 +77,14 @@ useEffect(() => {
           <p className="text-sm mb-6" style={{color:'var(--text-secondary)'}}>
             Wysłaliśmy link weryfikacyjny na <strong>{user.email}</strong>. Sprawdź skrzynkę i kliknij link.
           </p>
-          <button onClick={() => auth.currentUser.reload().then(() => window.location.reload())}
-            className="btn-primary w-full justify-center mb-3">
-            Już potwierdziłem ✓
-          </button>
-          <button onClick={() => import('firebase/auth').then(m => m.sendEmailVerification(auth.currentUser))}
-            className="btn-ghost w-full justify-center text-sm">
-            Wyślij ponownie
-          </button>
+          <button onClick={() => window.location.reload()}
+  className="btn-primary w-full justify-center mb-3">
+  Już potwierdziłem ✓
+</button>
+<button onClick={async () => { const { sendEmailVerification } = await import('firebase/auth'); await sendEmailVerification(user) }}
+  className="btn-ghost w-full justify-center text-sm">
+  Wyślij ponownie
+</button>
         </div>
       </div>
     )
