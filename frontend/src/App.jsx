@@ -13,7 +13,6 @@ import Sidebar from './components/Sidebar'
 import AddAppModal from './components/AddAppModal'
 import Toast, { showToast } from './components/Toast'
 import UpgradeModal from './components/UpgradeModal'
-import OnboardingWizard from './components/OnboardingWizard'
 import { useSession } from './hooks/useSession'
 import { doc, getDoc, getDocFromServer, setDoc } from 'firebase/firestore'
 import { db } from './firebase'
@@ -34,22 +33,13 @@ export default function App() {
   const [showModal, setShowModal] = useState(false)
   const [showAuth, setShowAuth] = useState(false)
   const [showUpgrade, setShowUpgrade] = useState(false)
-  const [showOnboarding, setShowOnboarding] = useState(false)
   const [isPro, setIsPro] = useState(false)
   const { sessionValid, forceRelogin } = useSession(user)
 
-  useEffect(() => {
+useEffect(() => {
     if (!user) return
     getDocFromServer(doc(db, 'users', user.uid)).then(snap => {
       const data = snap.exists() ? snap.data() : {}
-      // Pokaż onboarding tylko jeśli pole NIE istnieje w Firestore
-      if (snap.exists() && data.onboardingCompleted === true) {
-        setShowOnboarding(false)
-      } else if (!snap.exists()) {
-        setShowOnboarding(true)
-      } else if (data.onboardingCompleted !== true) {
-        setShowOnboarding(true)
-      }
       setIsPro(data?.isPro === true)
     })
   }, [user])
@@ -176,7 +166,6 @@ export default function App() {
       {showModal && <AddAppModal onClose={() => setShowModal(false)} onSave={handleAddApplication} />}
       <Toast />
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
-      {showOnboarding && <OnboardingWizard onComplete={() => setShowOnboarding(false)} />}
     </div>
   )
 }
