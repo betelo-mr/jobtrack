@@ -6,6 +6,13 @@ import claudeRoutes from './routes/claude.js'
 import stripeRoutes from './routes/stripe.js'
 
 const app = express()
+// Timeout 120 sekund dla długich zapytań AI
+app.use((req, res, next) => {
+  res.setTimeout(120000, () => {
+    res.status(504).json({ error: 'Zapytanie trwało zbyt długo. Spróbuj ponownie.' })
+  })
+  next()
+})
 const PORT = process.env.PORT || 3001
 
 // ── CORS ──
