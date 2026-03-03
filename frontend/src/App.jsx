@@ -77,7 +77,7 @@ useEffect(() => {
           <p className="text-sm mb-6" style={{color:'var(--text-secondary)'}}>
             Wysłaliśmy link weryfikacyjny na <strong>{user.email}</strong>. Sprawdź skrzynkę i kliknij link.
           </p>
-          <button onClick={() => window.location.reload()}
+          <button onClick={async () => { await user.reload(); window.location.reload() }}
   className="btn-primary w-full justify-center mb-3">
   Już potwierdziłem ✓
 </button>
