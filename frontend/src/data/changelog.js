@@ -1,4 +1,12 @@
 export const CHANGELOG = [
+{
+  version: '1.9.3',
+  date: '2026-03-03',
+  changes: [
+    '📧 Blokowanie niepotwierdzonych email',
+    '⚡ Poprawki stabilności',
+  ]
+
   {
   version: '1.9.2',
   date: '2026-03-03',
