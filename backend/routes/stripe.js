@@ -4,7 +4,7 @@ import { Router } from 'express'
 const router = Router()
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
-const PRICE_ID = 'price_1T5qzwA0VPRlBFsOaFipIxCV'
+const PRICE_ID = 'price_1T68jPPBiJ1T4Fp347lAav9X'
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
 const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'jobtrack-pl'
 
