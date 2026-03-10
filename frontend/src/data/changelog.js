@@ -1,20 +1,13 @@
 export const CHANGELOG = [
-{
-  version: '1.9.3',
-  date: '2026-03-03',
-  changes: [
-    '📧 Blokowanie niepotwierdzonych email',
-    '⚡ Poprawki stabilności',
-  ]
-},
-{
-  version: '1.9.2',
-  date: '2026-03-03',
-  changes: [
-    '📧 Email weryfikacyjny po rejestracji',
-    '⚡ Poprawki stabilności',
-  ]
-},
+  {
+    version: '1.9.4',
+    date: '2026-03-04',
+    changes: [
+      '🛡️ Panel admina – lista userów, MRR, anomalie',
+      '📊 Statystyki analiz per user',
+      '🚨 Wykrywanie anomalii (20+ analiz/dzień)',
+    ]
+  },
   {
     version: '1.9.0',
     date: '2026-03-02',

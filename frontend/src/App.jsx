@@ -14,7 +14,8 @@ import AddAppModal from './components/AddAppModal'
 import Toast, { showToast } from './components/Toast'
 import UpgradeModal from './components/UpgradeModal'
 import { useSession } from './hooks/useSession'
-import { doc, getDoc, getDocFromServer, setDoc } from 'firebase/firestore'
+import AdminPanel, { isAdmin } from './pages/AdminPanel'
+import { doc, setDoc, getDocFromServer } from 'firebase/firestore'
 import { db } from './firebase'
 import { useEffect } from 'react'
 
@@ -36,13 +37,13 @@ export default function App() {
   const [isPro, setIsPro] = useState(false)
   const { sessionValid, forceRelogin } = useSession(user)
 
-useEffect(() => {
+  useEffect(() => {
     if (!user) return
+    console.log('UID:', user.uid)
     getDocFromServer(doc(db, 'users', user.uid)).then(snap => {
-  const data = snap.exists() ? snap.data() : {}
-
-  setIsPro(data?.isPro === true)
-})
+      const data = snap.exists() ? snap.data() : {}
+      setIsPro(data?.isPro === true)
+    })
   }, [user])
 
   // Listen for upgrade event from any component
@@ -67,7 +68,6 @@ useEffect(() => {
     return <LandingPage onLogin={() => setShowAuth(true)} />
   }
 
-  
   // Handle Stripe return
   const urlParams = new URLSearchParams(window.location.search)
   if (urlParams.get('payment') === 'success') {
@@ -160,6 +160,7 @@ useEffect(() => {
               {page === 'ai'        && <AIAssistant />}
               {page === 'jobs'      && <ComingSoon feature='jobs' />}
               {page === 'analytics' && <ComingSoon feature='analytics' />}
+              {page === 'admin' && isAdmin(user) && <AdminPanel user={user} />}
             </>
           )}
         </div>

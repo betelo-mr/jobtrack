@@ -17,7 +17,10 @@ const upload = multer({
 
 function parseJSON(text) {
   const clean = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
-  return JSON.parse(clean)
+  const start = clean.indexOf('{')
+  const end = clean.lastIndexOf('}')
+  if (start === -1 || end === -1) throw new Error('No JSON found in response')
+  return JSON.parse(clean.slice(start, end + 1))
 }
 
 async function extractCvText(req) {

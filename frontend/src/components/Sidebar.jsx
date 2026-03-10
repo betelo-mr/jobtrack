@@ -5,6 +5,8 @@ import { VERSION, BUILD_DATE } from '../version'
 import { useTheme } from '../context/ThemeContext'
 import ChangelogModal from './ChangelogModal'
 
+const ADMIN_UID = 'hpvca806XRWF1jignayfDN93eMi1'
+
 const NAV = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
   { id: 'tracker',   icon: '📋', label: 'Moje aplikacje' },
@@ -52,6 +54,7 @@ function ThemeToggle() {
 }
 
 export default function Sidebar({ user, page, setPage, appCount, isPro }) {
+  const isAdmin = user?.uid === ADMIN_UID
   const name = user?.displayName || user?.email?.split('@')[0] || '?'
 
   return (
@@ -85,6 +88,18 @@ export default function Sidebar({ user, page, setPage, appCount, isPro }) {
             )}
           </button>
         ))}
+      {isAdmin && (
+        <button onClick={() => setPage('admin')}
+          className={`w-full flex items-center gap-3 px-6 py-2.5 text-sm font-medium transition-all border-l-2 ${
+            page === 'admin'
+              ? 'text-red-600 bg-red-500/10 border-red-600'
+              : 'border-transparent hover:bg-white/5'
+          }`}
+          style={{color: page === 'admin' ? '#dc2626' : 'var(--text-muted)'}}>
+          <span className="text-base w-5 text-center">🛡️</span>
+          <span>Admin</span>
+        </button>
+      )}
       </nav>
 
       <div className="px-4 py-4" style={{borderTop:'1px solid var(--border)'}}>
