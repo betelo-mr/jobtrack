@@ -127,7 +127,7 @@ router.post('/tailor-cv', upload.single('cvPdf'), async (req, res) => {
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      max_tokens: 3000,
       messages: [{
         role: 'user',
         content: `Jesteś ekspertem kariery i copywriterem CV. Dostosuj CV kandydata do konkretnej oferty pracy.
@@ -155,7 +155,10 @@ Odpowiedz TYLKO w formacie JSON (bez markdown, bez \`\`\`):
       }]
     })
 
-    res.json(parseJSON(message.content[0].text))
+    const rawText = message.content[0].text
+console.log('stop_reason:', message.stop_reason)
+console.log('raw preview:', rawText.slice(0, 200))
+res.json(parseJSON(rawText))
   } catch(e) {
     console.error(e)
     res.status(500).json({ error: 'Błąd dostosowania CV: ' + e.message })
