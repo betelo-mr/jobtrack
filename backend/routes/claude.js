@@ -65,7 +65,9 @@ Odpowiedz TYLKO w formacie JSON (bez markdown, bez \`\`\`). Maksymalnie 5 elemen
       }]
     })
 
-    res.json(parseJSON(message.content[0].text))
+    const rawText = message.content[0].text
+console.log('Claude raw response:', rawText.slice(0, 500))
+res.json(parseJSON(rawText))
   } catch(e) {
     console.error(e)
     res.status(500).json({ error: 'Błąd analizy CV: ' + e.message })

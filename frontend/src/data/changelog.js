@@ -1,5 +1,13 @@
 export const CHANGELOG = [
   {
+  version: '1.9.4',
+  date: '2026-03-04',
+  changes: [
+    '🛡️ Panel admina – lista userów, MRR, anomalie',
+    '🐛 Fix błędu parsowania odpowiedzi AI',
+  ]
+},
+  {
     version: '1.9.4',
     date: '2026-03-04',
     changes: [
