@@ -16,11 +16,16 @@ const upload = multer({
 })
 
 function parseJSON(text) {
-  const clean = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
+  let clean = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
   const start = clean.indexOf('{')
   const end = clean.lastIndexOf('}')
   if (start === -1 || end === -1) throw new Error('No JSON found in response')
-  return JSON.parse(clean.slice(start, end + 1))
+  clean = clean.slice(start, end + 1)
+  // Zamień problematyczne znaki Unicode
+  clean = clean.replace(/[\u2013\u2014]/g, '-') // em dash, en dash
+  clean = clean.replace(/[\u2018\u2019]/g, "'") // curly single quotes
+  clean = clean.replace(/[\u201C\u201D]/g, '"') // curly double quotes
+  return JSON.parse(clean)
 }
 
 async function extractCvText(req) {
