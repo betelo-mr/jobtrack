@@ -151,14 +151,41 @@ ${jobDesc.slice(0, 2000)}
 CV KANDYDATA:
 ${cvText}
 
-Odpowiedz TYLKO w formacie JSON (bez markdown, bez \`\`\`):
-{
-  "summary": "<1 zdanie co zostało zmienione i dlaczego>",
-  "changes": ["zmiana 1 max 80 znaków", "zmiana 2", "zmiana 3", "zmiana 4"],
-  "tailoredCV": "<pełne przepisane CV w formacie markdown>"
-}`
+Odpowiedz w dokładnie takim formacie (zachowaj separatory):
+===SUMMARY===
+1 zdanie co zostało zmienione i dlaczego
+===CHANGES===
+- zmiana 1 (max 80 znaków)
+- zmiana 2
+- zmiana 3
+- zmiana 4
+===CV===
+pełne przepisane CV w formacie markdown`
       }]
     })
+
+    const text = message.content[0].text
+
+    const summaryMatch = text.match(/===SUMMARY===\s*([\s\S]*?)===CHANGES===/)
+    const changesMatch = text.match(/===CHANGES===\s*([\s\S]*?)===CV===/)
+    const cvMatch = text.match(/===CV===\s*([\s\S]*)$/)
+
+    if (!summaryMatch || !changesMatch || !cvMatch) {
+      throw new Error('Nieoczekiwany format odpowiedzi AI')
+    }
+
+    const summary = summaryMatch[1].trim()
+    const changes = changesMatch[1].trim().split('\n')
+      .map(l => l.replace(/^[-*]\s*/, '').trim())
+      .filter(Boolean)
+    const tailoredCV = cvMatch[1].trim()
+
+    res.json({ summary, changes, tailoredCV })
+  } catch(e) {
+    console.error(e)
+    res.status(500).json({ error: 'Błąd dostosowania CV: ' + e.message })
+  }
+})
 
     const rawText = message.content[0].text
 console.log('stop_reason:', message.stop_reason)
